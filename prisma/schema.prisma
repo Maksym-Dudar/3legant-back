@@ -1,0 +1,77 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  user_id       Int      @id @default(autoincrement())
+  email         String   @unique
+  password      String
+  otp           String
+  expare_otp    DateTime
+  name          String
+  avatar        String
+  created_at    DateTime @default(now())
+  updated_at    DateTime @updatedAt
+
+  comments      Comment[]
+
+}
+
+model Product{
+  product_id    Int      @unique @default(autoincrement())
+  titel         String
+  description   String
+  isNew         Boolean
+  offer_expires DateTime?
+  measurements  String
+  sale          Float
+  price         Float
+  nStar         Int
+  created_at    DateTime  @default(now())
+  updated_at    DateTime  @updatedAt
+
+  image         String[]
+
+  color         Color[] 
+  category      Category[]
+  comment       Comment[]
+
+}
+
+model Color {
+  color         String   @id
+  product_id    Int       
+
+  product       Product  @relation(fields: [product_id], references: [product_id])
+}
+
+model Comment {
+  comment_id  Int     @id @default(autoincrement())
+  user_id     Int
+  product_id  Int
+  rete        Int
+  text        String
+
+  product     Product @relation(fields: [product_id], references: [product_id])
+  user        User    @relation(fields: [user_id], references: [user_id])
+}
+
+enum Category {
+  LIVING_ROOM     @map("Living Room")
+  BEDROOM         @map("Bedroom")
+  KITCHEN         @map("Kitchen")
+  BATHROOM        @map("Bathroom")
+  OFFICE          @map("Office")
+}
