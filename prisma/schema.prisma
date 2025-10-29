@@ -6,7 +6,7 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../src/generated/prisma"
+  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -31,7 +31,7 @@ model User {
 
 model Product{
   product_id    Int      @unique @default(autoincrement())
-  titel         String
+  title         String
   description   String
   isNew         Boolean
   offer_expires DateTime?
@@ -39,14 +39,16 @@ model Product{
   sale          Float
   price         Float
   nStar         Int
+  reviews       Int
+  inStock       Boolean
   created_at    DateTime  @default(now())
-  updated_at    DateTime  @updatedAt
+  updated_at    DateTime?  @updatedAt
 
   image         String[]
-
-  color         Color[] 
+   
   category      Category[]
   comment       Comment[]
+  colors        Color[]
 
 }
 
