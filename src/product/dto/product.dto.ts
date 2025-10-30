@@ -2,6 +2,9 @@ import { IsArray, IsBoolean, IsDate, IsEnum, IsInt, IsNumber, IsString } from 'c
 import { Category } from 'generated/prisma';
 
 export class CreateProductDto {
+  @IsNumber()
+  product_group_id: number;
+
   @IsString()
   title: string;
 
@@ -9,7 +12,7 @@ export class CreateProductDto {
   price: number;
 
   @IsNumber()
-  nStar: number;
+  rating: number;
 
   @IsNumber()
   sale: number;
@@ -29,8 +32,7 @@ export class CreateProductDto {
   image: string[];
 
   @IsString()
-  @IsArray({ each: true })
-  color: string[];
+  color: string;
 
   @IsString()
   description: string;
@@ -43,5 +45,4 @@ export class CreateProductDto {
 
   @IsBoolean()
   inStock: boolean = true;
-  
 }

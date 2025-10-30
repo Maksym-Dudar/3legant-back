@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Query } from '@nestjs/common';
 import { CreateProductDto } from './dto/product.dto';
 import { Category } from 'generated/prisma';
 import { Sorts } from './type';
@@ -24,34 +24,31 @@ export class ProductController {
   }
 
   @Get('page')
-  findManyPage(@Query('ids') ids: string) {
-    return this.productService.findManyPage(ids);
+  findOnePage(@Query('id') id: string) {
+    return this.productService.findOnePage(+id);
   }
 
-  // @Get()
-  // findAll(
-  //   @Query('skip') skip: number,
-  //   @Query('take') take: number,
-  //   @Query('categorie') categorie: Category | "All",
-  //   @Query('sort') sort: Sorts,
-  //   @Query('top-price') topPrice?: number,
-  //   @Query('lower-price') lowerPrice?: number,
-  // ) {
-  //   return this.productService.findAll({ skip, take, categorie, topPrice, lowerPrice, sort });
-  // }
+  @Get('new')
+  findManyNew(@Query('take') take: string) {
+    return this.productService.findManyNew(+take);
+  }
 
-  // @Get(':id')
-  // findOne(@Param('id') id: number) {
-  //   return this.productService.findOne(id);
-  // }
-
-  // @Patch(':id')
-  // update(@Param('id') id: number, @Body() updateProductDto: UpdateProductDto) {
-  //   return this.productService.update({ id, updateProductDto });
-  // }
-
-  // @Delete(':id')
-  // remove(@Param('id') id: number) {
-  //   return this.productService.remove(id);
-  // }
+  @Get('shop')
+  findManyShop(
+    @Query('skip') skip: string,
+    @Query('take') take: string,
+    @Query('category') category: Category | 'All',
+    @Query('topPrice') topPrice: number,
+    @Query('lowPrice') lowPrice: number,
+    @Query('sort') sort: Sorts,
+  ) {
+    return this.productService.findManyShop(
+      +skip,
+      +take,
+      category,
+      sort,
+      topPrice,
+      lowPrice,
+    );
+  }
 }

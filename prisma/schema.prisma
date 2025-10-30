@@ -15,7 +15,7 @@ datasource db {
 }
 
 model User {
-  user_id       Int      @id @default(autoincrement())
+  id       Int      @id @default(autoincrement())
   email         String   @unique
   password      String
   otp           String
@@ -30,44 +30,38 @@ model User {
 }
 
 model Product{
-  product_id    Int      @unique @default(autoincrement())
-  title         String
-  description   String
-  isNew         Boolean
-  offer_expires DateTime?
-  measurements  String
-  sale          Float
-  price         Float
-  nStar         Int
-  reviews       Int
-  inStock       Boolean
-  created_at    DateTime  @default(now())
-  updated_at    DateTime?  @updatedAt
+  id                Int      @id @default(autoincrement())
+  product_group_id  Int   
+  title             String
+  description       String
+  isNew             Boolean
+  offer_expires     DateTime?
+  measurements      String
+  sale              Float
+  price             Float
+  rating            Int
+  reviews           Int
+  inStock           Boolean
+  created_at        DateTime    @default(now())
+  updated_at        DateTime?   @updatedAt
+  color             String  
 
-  image         String[]
-   
-  category      Category[]
-  comment       Comment[]
-  colors        Color[]
+  image             String[]
+  category          Category[]
 
+  comment           Comment[]
 }
 
-model Color {
-  color         String   @id
-  product_id    Int       
-
-  product       Product  @relation(fields: [product_id], references: [product_id])
-}
 
 model Comment {
-  comment_id  Int     @id @default(autoincrement())
+  id          Int     @id @default(autoincrement())
   user_id     Int
   product_id  Int
-  rete        Int
+  rating      Int
   text        String
 
-  product     Product @relation(fields: [product_id], references: [product_id])
-  user        User    @relation(fields: [user_id], references: [user_id])
+  product     Product @relation(fields: [product_id], references: [id])
+  user        User    @relation(fields: [user_id], references: [id])
 }
 
 enum Category {

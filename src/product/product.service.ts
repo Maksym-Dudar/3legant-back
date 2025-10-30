@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma.service';
-import { Category, Prisma, Product } from 'generated/prisma';
+import { Category, Prisma } from 'generated/prisma';
 import { CreateProductDto } from './dto/product.dto';
 import { Sorts } from './type';
 
@@ -9,7 +9,6 @@ export class ProductService {
   constructor(private prisma: PrismaService) {}
 
   async create(createProductDto: CreateProductDto) {
-    console.log(createProductDto);
     const product: Prisma.ProductCreateInput = {
       ...createProductDto,
     };
@@ -21,14 +20,14 @@ export class ProductService {
 
     const products = await this.prisma.product.findMany({
       select: {
-        product_id: true,
+        id: true,
         title: true,
         price: true,
         color: true,
         image: true,
       },
       where: {
-        product_id: {
+        id: {
           in: idsArray,
         },
       },
@@ -44,17 +43,16 @@ export class ProductService {
     const idsArray = ids.split(',').map((id) => Number(id.trim()));
     const products = await this.prisma.product.findMany({
       select: {
-        product_id: true,
+        id: true,
         title: true,
         price: true,
-        nStar: true,
+        rating: true,
         sale: true,
         isNew: true,
-        color: true,
         image: true,
       },
       where: {
-        product_id: {
+        id: {
           in: idsArray,
         },
       },
@@ -66,113 +64,130 @@ export class ProductService {
     }));
   }
 
-  async findManyPage(ids: string) {
-    const idsArray = ids.split(',').map((id) => Number(id.trim()));
-    const products = await this.prisma.product.findMany({
+  async findOnePage(id: number) {
+    const products = await this.prisma.product.findFirst({
       select: {
-        product_id: true,
+        id: true,
+        product_group_id: true,
         title: true,
         description: true,
         price: true,
         offer_expires: true,
         measurements: true,
-        nStar: true,
+        rating: true,
         sale: true,
         isNew: true,
-        color: true,
         image: true,
         category: true,
         reviews: true,
+        color: true,
       },
       where: {
-        product_id: {
-          in: idsArray,
-        },
+        id: id,
       },
     });
 
-    
+    const sameProduct = await this.prisma.product.findMany({
+      select: {
+        id: true,
+        image: true,
+        inStock: true,
+        color: true,
+      },
+      where: {
+        product_group_id: products?.product_group_id,
+      },
+    });
+
+    const same = sameProduct.map((val) => {
+      return { ...val, image: val.image[0] ?? null };
+    });
+
+    return { ...products, same: same };
   }
 
-  // async findAll(params: {
-  //   skip: number;
-  //   take: number;
-  //   categorie: Category | 'All';
-  //   topPrice?: number;
-  //   lowerPrice?: number;
-  //   sort: Sorts;
-  // }) {
-  //   const { skip, take, categorie, topPrice, lowerPrice = 0, sort } = params;
+  async findManyNew(take: number) {
+    const products = await this.prisma.product.findMany({
+      take,
+      select: {
+        id: true,
+        title: true,
+        price: true,
+        rating: true,
+        sale: true,
+        isNew: true,
+        image: true,
+      },
+      where: {
+        isNew: true,
+      },
+    });
 
-  //   let orderBy;
-  //   switch (sort) {
-  //     case Sorts.High_to_low_price:
-  //       orderBy = {
-  //         price: 'desc',
-  //       };
-  //       break;
-  //     case Sorts.Low_to_high_price:
-  //       orderBy = {
-  //         price: 'asc',
-  //       };
-  //       break;
-  //     case Sorts.Top_rated:
-  //       orderBy = {
-  //         nStar: 'desc',
-  //       };
-  //       break;
-  //     default:
-  //       orderBy = {
-  //         nStar: 'desc',
-  //       };
-  //       break;
-  //   }
+    return products.map((product) => ({
+      ...product,
+      image: product.image?.[0] ?? null,
+    }));
+  }
 
-  //   if (categorie === 'All') {
-  //     return await this.prisma.product.findMany({
-  //       skip,
-  //       take,
-  //       where: {
-  //         ...(sort === Sorts.Newest ? { isNew: true } : {}),
-  //         price: {
-  //           gte: lowerPrice,
-  //           ...(topPrice !== undefined ? { lte: topPrice } : {}),
-  //         },
-  //       },
-  //       orderBy: [orderBy],
-  //     });
-  //   } else {
-  //     return await this.prisma.product.findMany({
-  //       skip,
-  //       take,
-  //       where: {
-  //         ...(sort === Sorts.Newest ? { isNew: true } : {}),
-  //         category: { hasSome: [categorie] },
-  //         price: {
-  //           gte: lowerPrice,
-  //           ...(topPrice !== undefined ? { lte: topPrice } : {}),
-  //         },
-  //       },
-  //       orderBy: [orderBy],
-  //     });
-  //   }
-  // }
+  async findManyShop(
+    skip: number,
+    take: number,
+    category: Category | 'All',
+    sort: Sorts,
+    topPrice?: number,
+    lowPrice: number = 0,
+  ) {
+    let orderBy;
+      switch (sort) {
+        case Sorts.High_to_low_price:
+          orderBy = {
+            price: 'desc',
+          };
+          break;
+        case Sorts.Low_to_high_price:
+          orderBy = {
+            price: 'asc',
+          };
+          break;
+        case Sorts.Top_rated:
+          orderBy = {
+            nStar: 'desc',
+          };
+          break;
+        default:
+          orderBy = {
+            nStar: 'desc',
+          };
+          break;
+      }
 
-  // async findOne(id: number) {
-  //   return await this.prisma.product.findUnique({
-  //     where: { product_id: id },
-  //   });
-  // }
-
-  // async update(params: { id: number; data: Prisma.ProductUpdateInput }) {
-  //   const { id, data } = params;
-  //   return await this.prisma.product.update({
-  //     data,
-  //     where: { product_id: id },
-  //   });
-  // }
-
-  // async remove(id: number) {
-  //   return await this.prisma.product.delete({ where: { product_id: id } });
-  // }
+      if (category === 'All') {
+        return await this.prisma.product.findMany({
+          skip,
+          take,
+          where: {
+            ...(sort === Sorts.Newest ? { isNew: true } : {}),
+            price: {
+              gte: lowPrice,
+              ...(topPrice !== undefined ? { lte: topPrice } : {}),
+            },
+          },
+          orderBy: [orderBy],
+        });
+      } else {
+        return await this.prisma.product.findMany({
+          skip,
+          take,
+          where: {
+            ...(sort === Sorts.Newest ? { isNew: true } : {}),
+            category: { hasSome: [category] },
+            price: {
+              gte: lowPrice,
+              ...(topPrice !== undefined ? { lte: topPrice } : {}),
+            },
+          },
+          orderBy: [orderBy],
+        });
+      }
+  }
 }
