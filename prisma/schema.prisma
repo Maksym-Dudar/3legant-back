@@ -15,13 +15,14 @@ datasource db {
 }
 
 model User {
-  id       Int      @id @default(autoincrement())
+  id            Int      @id @default(autoincrement())
   email         String   @unique
   password      String
-  otp           String
-  expare_otp    DateTime
-  name          String
-  avatar        String
+  otp           Int?
+  expare_otp    DateTime?
+  first_name    String
+  last_name     String?
+  avatar        String?
   created_at    DateTime @default(now())
   updated_at    DateTime @updatedAt
 

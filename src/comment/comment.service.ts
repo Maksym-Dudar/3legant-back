@@ -9,7 +9,7 @@ export class CommentService {
   async create(createCommentDto: CreateCommentDto) {
     const user = this.prisma.user.findFirst({
       select: {
-        name: true,
+        first_name: true,
         avatar: true,
       },
       where: {
@@ -33,7 +33,7 @@ export class CommentService {
       },
     });
   }
-    
+
   async findManyProduct(product_id: number) {
     return this.prisma.comment.findMany({
       where: { product_id: product_id },
@@ -42,7 +42,7 @@ export class CommentService {
         rating: true,
         user: {
           select: {
-            name: true,
+            first_name: true,
             avatar: true,
           },
         },

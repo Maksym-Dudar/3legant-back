@@ -156,7 +156,7 @@ export class ProductService {
           break;
         default:
           orderBy = {
-            nStar: 'desc',
+            rating: 'desc',
           };
           break;
       }

@@ -1,8 +1,8 @@
 import { Controller, Get, Post, Body, Query } from '@nestjs/common';
 import { CreateProductDto } from './dto/product.dto';
-import { Category } from 'generated/prisma';
 import { Sorts } from './type';
 import { ProductService } from './product.service';
+import { Category } from 'generated/prisma';
 
 @Controller('product')
 export class ProductController {
