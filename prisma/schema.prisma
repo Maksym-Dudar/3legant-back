@@ -15,60 +15,104 @@ datasource db {
 }
 
 model User {
-  id            Int      @id @default(autoincrement())
-  email         String   @unique
-  password      String
-  otp           Int?
-  expare_otp    DateTime?
-  first_name    String
-  last_name     String?
-  avatar        String?
-  created_at    DateTime @default(now())
-  updated_at    DateTime @updatedAt
+  id                Int           @id @default(autoincrement())
+  email             String        @unique
+  password          String
+  otp               Int?
+  expareOtp         DateTime?
+  firstName         String
+  lastName          String?       
+  avatar            String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
 
-  comments      Comment[]
-
+  comments          Comment[]
+  Address           Addres[]
+  orders            Order[]
 }
 
 model Product{
-  id                Int      @id @default(autoincrement())
-  product_group_id  Int   
+  id                Int           @id @default(autoincrement())
+  productGroupId    Int           @map("product_group_id")
   title             String
   description       String
-  isNew             Boolean
-  offer_expires     DateTime?
+  isNew             Boolean       @map("is_new")
+  offerExpires      DateTime?     @map("offer_expires")
   measurements      String
   sale              Float
   price             Float
   rating            Int
   reviews           Int
-  inStock           Boolean
-  created_at        DateTime    @default(now())
-  updated_at        DateTime?   @updatedAt
+  inStock           Boolean        @map("in_stock")
+  createdAt         DateTime       @default(now()) @map("created_at")
+  updatedAt         DateTime?      @updatedAt  @map("update_at")
   color             String  
 
   image             String[]
   category          Category[]
-
   comment           Comment[]
+}
+
+model Addres{
+  id                Int             @id @default(autoincrement())
+  userId            Int             @map("user_id")
+  firstName         String          @map("first_name")
+	lastName          String          @map("last_name")
+	phoneNumber       String          @map("phone_number")
+	email             String
+  country           String
+	state             String
+	city              String
+	street            String
+	buildingNumber    String          @map("building_number")
+	zipCode           String          @map("zip_code")
+
+  orders            Order[]
+  user              User            @relation(fields: [userId], references: [id])
+
+}
+
+model Order{
+  id                Int             @id @default(autoincrement())
+  userId            Int             @map("user_id")
+  addressId         Int             @map("address_id")
+  price             Int
+  createdAt         DateTime        @default(now()) @map("created_at")
+  status            OrderStatus
+
+  user              User            @relation(fields: [userId], references: [id])
+  address           Addres          @relation(fields: [addressId], references: [id])
+
 }
 
 
 model Comment {
-  id          Int     @id @default(autoincrement())
-  user_id     Int
-  product_id  Int
-  rating      Int
-  text        String
+  id                Int             @id @default(autoincrement())
+  userId            Int             @map("user_id")
+  productId         Int             @map("product_id")
+  rating            Int
+  text              String
 
-  product     Product @relation(fields: [product_id], references: [id])
-  user        User    @relation(fields: [user_id], references: [id])
+  product           Product         @relation(fields: [productId], references: [id])
+  user              User            @relation(fields: [userId], references: [id])
 }
 
 enum Category {
-  LIVING_ROOM     @map("Living Room")
-  BEDROOM         @map("Bedroom")
-  KITCHEN         @map("Kitchen")
-  BATHROOM        @map("Bathroom")
-  OFFICE          @map("Office")
+  LIVING_ROOM                       @map("living_room")
+  BEDROOM                           @map("bedroom")
+  KITCHEN                           @map("kitchen")
+  BATHROOM                          @map("bathroom")
+  OFFICE                            @map("office")
+}
+
+enum OrderStatus {
+  PENDING                           @map("pending")          // замовлення створено, очікує підтвердження
+  CONFIRMED                         @map("confirmed")        // підтверджено менеджером або системою
+  PROCESSING                        @map("processing")       // готується до відправки
+  SHIPPED                           @map("shipped")          // передано службі доставки
+  DELIVERED                         @map("delivered")        // доставлено клієнту
+  COMPLETED                         @map("completed")        // успішно завершено (оплачено, отримано)
+  CANCELLED                         @map("cancelled")        // скасовано клієнтом або системою
+  RETURNED                          @map("returned")         // повернено після доставки
+  FAILED                            @map("failed")           // не вдалося обробити (наприклад, помилка оплати)
 }

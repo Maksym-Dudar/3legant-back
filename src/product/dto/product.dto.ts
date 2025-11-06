@@ -3,7 +3,7 @@ import { Category } from 'generated/prisma';
 
 export class CreateProductDto {
   @IsNumber()
-  product_group_id: number;
+  productGroupId: number;
 
   @IsString()
   title: string;
@@ -18,7 +18,7 @@ export class CreateProductDto {
   sale: number;
 
   @IsDate()
-  offer_expires: Date = new Date();
+  offerExpires: Date = new Date();
 
   @IsBoolean()
   isNew: boolean;

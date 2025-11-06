@@ -68,11 +68,11 @@ export class ProductService {
     const products = await this.prisma.product.findFirst({
       select: {
         id: true,
-        product_group_id: true,
+        productGroupId: true,
         title: true,
         description: true,
         price: true,
-        offer_expires: true,
+        offerExpires: true,
         measurements: true,
         rating: true,
         sale: true,
@@ -95,7 +95,7 @@ export class ProductService {
         color: true,
       },
       where: {
-        product_group_id: products?.product_group_id,
+        productGroupId: products?.productGroupId,
       },
     });
 

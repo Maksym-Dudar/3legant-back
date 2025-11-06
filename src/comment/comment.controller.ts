@@ -12,7 +12,7 @@ export class CommentController {
   }
 
   @Get()
-  findManyProduct(@Query('product_id') product_id: string) {
-    return this.commentService.findManyProduct(+product_id);
+  findManyProduct(@Query('product_id') productId: string) {
+    return this.commentService.findManyProduct(+productId);
   }
 }

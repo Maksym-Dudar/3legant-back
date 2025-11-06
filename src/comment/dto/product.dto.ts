@@ -8,8 +8,8 @@ export class CreateCommentDto {
   rating: number;
 
   @IsNumber()
-  user_id: number;
+  userId: number;
 
   @IsNumber()
-  product_id: number;
+  productId: number;
 }

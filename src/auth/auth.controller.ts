@@ -28,7 +28,7 @@ export class AuthController {
       sameSite: 'strict',
       maxAge: 3000 * 60 * 60,
     });
-    return { masage: 'sign-in' };
+    return token;
   }
 
   @Post('sign-in')
@@ -47,7 +47,7 @@ export class AuthController {
       sameSite: 'strict',
       maxAge: 3000 * 60 * 60,
     });
-    return { masage: 'sign-in' };
+    return user;
   }
 
   @Post('otpcode')

@@ -1,8 +1,11 @@
 import { IsDate, IsEmail, IsNumber, IsString } from 'class-validator';
 
 export class CreateUserDto {
+  @IsNumber()
+  id?: number;
+
   @IsString()
-  first_name: string;
+  firstName: string;
 
   @IsEmail()
   email: string;
@@ -11,13 +14,13 @@ export class CreateUserDto {
   password: string;
 
   @IsString()
-  last_name?: string;
+  lastName?: string;
 
   @IsNumber()
   otp?: number;
 
   @IsDate()
-  expare_ot?: Date;
+  expareOt?: Date;
 
   @IsString()
   avatar?: string;

@@ -9,11 +9,11 @@ export class CommentService {
   async create(createCommentDto: CreateCommentDto) {
     const user = this.prisma.user.findFirst({
       select: {
-        first_name: true,
+        firstName: true,
         avatar: true,
       },
       where: {
-        id: createCommentDto.user_id,
+        id: createCommentDto.userId,
       },
     });
     return this.prisma.comment.create({
@@ -22,27 +22,27 @@ export class CommentService {
         rating: createCommentDto.rating,
         user: {
           connect: {
-            id: createCommentDto.user_id,
+            id: createCommentDto.userId,
           },
         },
         product: {
           connect: {
-            id: createCommentDto.product_id,
+            id: createCommentDto.productId,
           },
         },
       },
     });
   }
 
-  async findManyProduct(product_id: number) {
+  async findManyProduct(productId: number) {
     return this.prisma.comment.findMany({
-      where: { product_id: product_id },
+      where: { productId: productId },
       select: {
         text: true,
         rating: true,
         user: {
           select: {
-            first_name: true,
+            firstName: true,
             avatar: true,
           },
         },
