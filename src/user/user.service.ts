@@ -5,7 +5,6 @@ import { Multer } from 'multer';
 import * as fs from 'fs/promises';
 import * as path from 'path';
 import { AddressDto } from './dto/address.dto';
-import { Prisma } from 'generated/prisma';
 
 @Injectable()
 export class UserService {
@@ -119,6 +118,50 @@ export class UserService {
   }
 
   async takeAllAddress(id: number) {
-    return this.prisma.addres.findMany({ where: { userId: id } });
+    return this.prisma.addres.findMany({
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        phoneNumber: true,
+        email: true,
+        country: true,
+        state: true,
+        city: true,
+        street: true,
+        buildingNumber: true,
+        zipCode: true,
+      },
+      where: { userId: id },
+    });
+  }
+
+  async takeAllWishlist(wishlistArray: number[]) {
+    return this.prisma.product.findMany({
+      select: {
+        id: true,
+        title: true,
+        color: true,
+        price: true,
+        image: true
+      },
+      where: {
+        id: {
+          in: wishlistArray,
+        },
+      },
+    });
+  }
+
+  async takeAllOrders(userId: number) {
+    return this.prisma.order.findMany({
+      select: {
+        id: true,
+        createdAt: true,
+        status: true,
+        price: true,
+      },
+      where: { userId: userId },
+    });
   }
 }

@@ -4,6 +4,8 @@ import {
   Body,
   UnauthorizedException,
   Res,
+  Delete,
+  Get,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { SignUpDto } from './dto/signUp.dto';
@@ -58,5 +60,15 @@ export class AuthController {
   @Post('reset-password-otp')
   async resetPasswordOtp(@Body() dto: ResetPasswordOtpDto) {
     return this.authService.resetPasswordOtp(dto);
+  }
+
+  @Delete('log-out')
+  async logOut(@Res({ passthrough: true }) res: express.Response) {
+    res.clearCookie('access_token', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+    });
+    return { message: 'Signed out successfully' };
   }
 }

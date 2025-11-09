@@ -21,7 +21,7 @@ import { AuthService } from 'src/auth/auth.service';
 import * as bcrypt from 'bcrypt';
 import { AddressDto } from './dto/address.dto';
 
-// @UseGuards(JwtAuthGuard)
+@UseGuards(JwtAuthGuard)
 @Controller('user')
 export class UserController {
   constructor(
@@ -37,10 +37,8 @@ export class UserController {
   @Get()
   async findUser(@Query('email') email: string) {
     const user = await this.userService.findByUserEmail(email);
-    return {
-      ...user,
-      password: null,
-    };
+    const { password, ...safeUser } = user ?? {};
+    return safeUser;
   }
 
   @Post('update')
@@ -90,7 +88,7 @@ export class UserController {
   }
 
   @Put('address')
-  async updateAddress(@Body() address: AddressDto & {id: number}) {
+  async updateAddress(@Body() address: AddressDto & { id: number }) {
     const { id, ...addres } = address;
     return await this.userService.updateAddress(+id, addres);
   }
@@ -98,5 +96,17 @@ export class UserController {
   @Get('address')
   async getAddress(@Query('id') id: string) {
     return await this.userService.takeAllAddress(+id);
+  }
+
+  @Get('wishlist')
+  async getWishlist(@Query('wishlist') wishlist: string) {
+    const wishlistArrayString = wishlist.split(',');
+    const wishlistArrayNumber = wishlistArrayString.map(Number).filter(Boolean);
+    return await this.userService.takeAllWishlist(wishlistArrayNumber);
+  }
+
+  @Get('orders')
+  async getOrders(@Query('userId') userId: string) {
+    return await this.userService.takeAllOrders(+userId);
   }
 }
