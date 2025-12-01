@@ -47,7 +47,7 @@ export class UserService {
 
   async updateAvatar(
     file: Multer.File,
-    req: Express.Request & { user: { userId: number; email: string } },
+    email: string,
   ) {
     if (!file || file.size === 0) {
       throw new BadRequestException('Файл не передано або він порожній');
@@ -63,17 +63,15 @@ export class UserService {
 
     const extension = path.extname(file.originalname).toLowerCase();
     const safeExtension = extension.replace(/[^a-z0-9.]/gi, '');
-    const fileName = `${req.user.email}${safeExtension}`;
+    const fileName = `${email}${safeExtension}`;
     const filePath = path.join(uploadDir, fileName);
 
     await fs.writeFile(filePath, file.buffer);
 
     const res = await this.prisma.user.update({
-      where: { email: req.user.email },
+      where: { email:email },
       data: { avatar: `/public/user/avatar/${fileName}` },
     });
-
-    console.log(res);
 
     return { message: 'Аватар оновлено', path: `/user/avatar/${fileName}` };
   }
@@ -140,10 +138,14 @@ export class UserService {
     return this.prisma.product.findMany({
       select: {
         id: true,
-        title: true,
         color: true,
         price: true,
-        image: true
+        image: true,
+        productGroup: {
+          select: {
+            title: true
+          }
+        }
       },
       where: {
         id: {
@@ -161,7 +163,7 @@ export class UserService {
         status: true,
         price: true,
       },
-      where: { userId: userId },
+      where: { userId },
     });
   }
 }

@@ -1,18 +1,20 @@
-import { IsArray, IsBoolean, IsDate, IsEnum, IsInt, IsNumber, IsString } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsDate,
+  IsEnum,
+  IsInt,
+  IsNumber,
+  IsString,
+} from 'class-validator';
 import { Category } from 'generated/prisma';
 
 export class CreateProductDto {
-  @IsNumber()
-  productGroupId: number;
-
   @IsString()
   title: string;
 
   @IsNumber()
   price: number;
-
-  @IsNumber()
-  rating: number;
 
   @IsNumber()
   sale: number;
@@ -28,21 +30,29 @@ export class CreateProductDto {
   category: Category[];
 
   @IsString()
-  @IsArray({ each: true })
-  image: string[];
+  color: string;
+  
+  @IsString()
+  description: string;
+  
+  @IsString()
+  measurements: string;
+  
+  @IsNumber()
+  quantityWarehouse: number;
+  
+  @IsNumber()
+  productGroupId: number;
 
   @IsString()
-  color: string;
+  @IsArray({ each: true })
+  image: string[];
+}
+
+export class CreateProductGroupDto {
+  @IsString()
+  title: string;
 
   @IsString()
   description: string;
-
-  @IsString()
-  measurements: string;
-
-  @IsInt()
-  reviews: number = 0;
-
-  @IsBoolean()
-  inStock: boolean = true;
 }

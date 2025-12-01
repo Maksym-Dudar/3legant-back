@@ -35,22 +35,31 @@ export class AuthService {
   }
 
   async validateUser(email: string, pass: string): Promise<any> {
-      const user = await this.userService.findByUserEmail(email);
-      if (!user) {
-        throw new BadRequestException('Email is incorrect');
-      }
-      const isMatch = await bcrypt.compare(pass, user.password);
-      if (!isMatch) {
-        throw new UnauthorizedException('Password is incorect');
-      }
-      const { password, ...result } = user;
-      return result;
+    const user = await this.userService.findByUserEmail(email);
+    if (!user) {
+      throw new BadRequestException('Email is incorrect');
+    }
+    const isMatch = await bcrypt.compare(pass, user.password);
+    if (!isMatch) {
+      throw new UnauthorizedException('Password is incorect');
+    }
+    const { password, ...result } = user;
+    return result;
   }
 
   async signIn(signInDto: SignInDto) {
     return {
       access_token: this.jwtService.sign(signInDto),
     };
+  }
+
+  async verifyToken(token: string) {
+    try {
+      const payload = this.jwtService.verify(token);
+      return payload;
+    } catch (error) {
+      throw new UnauthorizedException('Token not found');
+    }
   }
 
   async generateOtp(generateOtpDto: GenerateOtpDto) {
@@ -77,6 +86,8 @@ export class AuthService {
       throw new UnauthorizedException('Otp code incorect');
     }
     const hashedPassword = await bcrypt.hash(resetPasswordOtpDto.password, 10);
-    return this.userService.updateByEmail(resetPasswordOtpDto.email, { password: hashedPassword });
+    return this.userService.updateByEmail(resetPasswordOtpDto.email, {
+      password: hashedPassword,
+    });
   }
 }

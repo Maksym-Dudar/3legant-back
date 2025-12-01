@@ -12,13 +12,13 @@ import {
   Put,
 } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { Multer } from 'multer';
 import { UpdateUserDto } from './dto/update-user-password.dto';
 import { AuthService } from 'src/auth/auth.service';
 import * as bcrypt from 'bcrypt';
+import express from 'express';
 import { AddressDto } from './dto/address.dto';
 
 @UseGuards(JwtAuthGuard)
@@ -29,24 +29,24 @@ export class UserController {
     private readonly authService: AuthService,
   ) {}
 
-  @Post()
-  async create(@Body() createUserDto: CreateUserDto) {
-    return await this.userService.create(createUserDto);
-  }
-
   @Get()
-  async findUser(@Query('email') email: string) {
+  async findUser(@Req() req: express.Request) {
+    const { email, ...rest } = await this.authService.verifyToken(
+      req.cookies.access_token,
+    );
     const user = await this.userService.findByUserEmail(email);
     const { password, ...safeUser } = user ?? {};
     return safeUser;
   }
 
   @Post('update')
-  async update(@Body() updateUserDto: UpdateUserDto) {
-    if (!updateUserDto.id) {
-      throw new BadRequestException('User not found');
-    }
-    console.log(updateUserDto);
+  async update(
+    @Body() updateUserDto: UpdateUserDto,
+    @Req() req: express.Request,
+  ) {
+    const { email, ...rest } = await this.authService.verifyToken(
+      req.cookies.access_token,
+    );
     if (
       (updateUserDto.oldPassword && !updateUserDto.newPassword) ||
       (!updateUserDto.oldPassword && updateUserDto.newPassword)
@@ -55,18 +55,15 @@ export class UserController {
     }
 
     if (updateUserDto.oldPassword && updateUserDto.newPassword) {
-      await this.authService.validateUser(
-        updateUserDto.email,
-        updateUserDto.oldPassword,
-      );
+      await this.authService.validateUser(email, updateUserDto.oldPassword);
       const hashedPassword = await bcrypt.hash(updateUserDto.newPassword, 10);
-      return await this.userService.updateById(+updateUserDto.id, {
+      return await this.userService.updateByEmail(email, {
         firstName: updateUserDto.firstName,
         lastName: updateUserDto.lastName,
         password: hashedPassword,
       });
     } else {
-      return await this.userService.updateById(+updateUserDto.id, {
+      return await this.userService.updateById(email, {
         firstName: updateUserDto.firstName,
         lastName: updateUserDto.lastName,
       });
@@ -77,20 +74,48 @@ export class UserController {
   @UseInterceptors(FileInterceptor('file'))
   async updateAvatar(
     @UploadedFile() file: Multer.Fil,
-    @Req() req: Express.Request & { user: { userId: number; email: string } },
+    @Req() req: express.Request,
   ) {
-    return await this.userService.updateAvatar(file, req);
+    const { email, ...rest } = await this.authService.verifyToken(
+      req.cookies.access_token,
+    );
+    return await this.userService.updateAvatar(file, email);
   }
 
   @Post('address')
-  async setAddress(@Body() address: AddressDto) {
-    return await this.userService.createAddress(address);
+  async setAddress(@Body() address: AddressDto, @Req() req: express.Request) {
+    const { email, ...rest } = await this.authService.verifyToken(
+      req.cookies.access_token,
+    );
+    const user = await this.userService.findByUserEmail(email);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+    return await this.userService.createAddress({
+      ...address,
+      email: email,
+      userId: user?.id,
+    });
   }
 
   @Put('address')
-  async updateAddress(@Body() address: AddressDto & { id: number }) {
+  async updateAddress(
+    @Body() address: AddressDto & { id: number },
+    @Req() req: express.Request,
+  ) {
+    const { email, ...rest } = await this.authService.verifyToken(
+      req.cookies.access_token,
+    );
+    const user = await this.userService.findByUserEmail(email);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
     const { id, ...addres } = address;
-    return await this.userService.updateAddress(+id, addres);
+    return await this.userService.updateAddress(+id, {
+      ...addres,
+      email: user.email,
+      userId: user.id,
+    });
   }
 
   @Get('address')
@@ -106,7 +131,14 @@ export class UserController {
   }
 
   @Get('orders')
-  async getOrders(@Query('userId') userId: string) {
-    return await this.userService.takeAllOrders(+userId);
+  async getOrders(@Req() req: express.Request) {
+    const { email, ...rest } = await this.authService.verifyToken(
+      req.cookies.access_token,
+    );
+    const user = await this.userService.findByUserEmail(email);
+    if (!user) {
+      throw new BadRequestException('User not found');
+    }
+    return await this.userService.takeAllOrders(+user.id);
   }
 }

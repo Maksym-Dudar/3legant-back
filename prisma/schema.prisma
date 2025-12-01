@@ -19,12 +19,12 @@ model User {
   email             String        @unique
   password          String
   otp               Int?
-  expareOtp         DateTime?
-  firstName         String
-  lastName          String?       
+  expareOtp         DateTime?     @map("expare_otp")
+  firstName         String        @map("first_name")
+  lastName          String?       @map("last_name")
   avatar            String?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
+  createdAt         DateTime      @default(now()) @map("created_at")
+  updatedAt         DateTime      @updatedAt      @map("updated_at")
 
   comments          Comment[]
   Address           Addres[]
@@ -34,8 +34,6 @@ model User {
 model Product{
   id                Int           @id @default(autoincrement())
   productGroupId    Int           @map("product_group_id")
-  title             String
-  description       String
   isNew             Boolean       @map("is_new")
   offerExpires      DateTime?     @map("offer_expires")
   measurements      String
@@ -43,15 +41,25 @@ model Product{
   price             Float
   rating            Int
   reviews           Int
-  inStock           Boolean        @map("in_stock")
+  quantityWarehouse Int            @map("quantity_warehouse")
   createdAt         DateTime       @default(now()) @map("created_at")
-  updatedAt         DateTime?      @updatedAt  @map("update_at")
+  updatedAt         DateTime?      @updatedAt  @map("updated_at")
   color             String  
+  description       String
 
   image             String[]
   category          Category[]
+
   comment           Comment[]
   orders            Order[]
+  productGroup      ProductGroup   @relation(fields: [productGroupId], references: [id])
+}
+
+model ProductGroup{
+  id                Int           @id @default(autoincrement())
+  title             String
+
+  product           Product[]
 }
 
 model Addres{
