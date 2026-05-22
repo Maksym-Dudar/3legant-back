@@ -1,5 +1,5 @@
-import { Type } from 'class-transformer';
-import { IsNumber, IsString } from 'class-validator';
+import { Type } from "class-transformer";
+import { IsNumber, IsString } from "class-validator";
 
 export class CreateDeliveryMethod {
   @IsNumber()
@@ -12,7 +12,7 @@ export class CreateDeliveryMethod {
 
   @IsString()
   method!: string;
-    
+
   @IsString()
   label!: string;
 }

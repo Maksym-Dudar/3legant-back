@@ -1,6 +1,6 @@
-import { PrismaService } from '@/database/prisma/prisma.service';
-import { Injectable } from '@nestjs/common';
-import {  OrderStatus, Prisma } from '@prisma/client';
+import { PrismaService } from "@/database/prisma/prisma.service";
+import { Injectable } from "@nestjs/common";
+import { OrderStatus, Prisma } from "@prisma/client";
 
 @Injectable()
 export class OrderRepository {
@@ -37,9 +37,9 @@ export class OrderRepository {
     return this.prisma.order.update({ where: { id }, data: order });
   }
 
-  async findOneForCheckout(id: number) {
+  async findOneForCheckout(id: number, userId?: number) {
     return this.prisma.order.findFirst({
-      where: { id },
+      where: { id, ...(userId ? { userId } : {}) },
       select: {
         total: true,
         shippingMethod: true,
@@ -67,9 +67,9 @@ export class OrderRepository {
     });
   }
 
-  async findOneForComplete(id: number) {
+  async findOneForComplete(id: number, userId?: number) {
     return this.prisma.order.findFirst({
-      where: { id },
+      where: { id, ...(userId ? { userId } : {}) },
       select: {
         total: true,
         shippingMethod: true,
@@ -102,6 +102,6 @@ export class OrderRepository {
   }
 
   async findShippingMethod(id: number) {
-    return this.prisma.shippingMethod.findFirst({where: {id}});
+    return this.prisma.shippingMethod.findFirst({ where: { id } });
   }
 }

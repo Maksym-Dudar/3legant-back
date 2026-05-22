@@ -1,4 +1,4 @@
-export interface AccessTokenPayload{
-    sub: number;
-    email: string;
+export interface AccessTokenPayload {
+  sub: number;
+  email: string;
 }

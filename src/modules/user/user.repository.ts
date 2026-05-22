@@ -1,6 +1,6 @@
-import { PrismaService } from '@/database/prisma/prisma.service';
-import { Injectable } from '@nestjs/common';
-import { Prisma } from '@prisma/client';
+import { PrismaService } from "@/database/prisma/prisma.service";
+import { Injectable } from "@nestjs/common";
+import { Prisma } from "@prisma/client";
 
 @Injectable()
 export class UserRepository {
@@ -19,7 +19,7 @@ export class UserRepository {
   }
   async findByEmailAllData(email: string) {
     return this.prisma.user.findUnique({
-      where: { email }
+      where: { email },
     });
   }
   async create(email: string, password: string, firstName: string) {
@@ -40,7 +40,7 @@ export class UserRepository {
     email: string,
     prop: Omit<
       Prisma.UserUpdateInput,
-      'email' | 'updatedAt' | 'createdAt' | 'id'
+      "email" | "updatedAt" | "createdAt" | "id"
     >,
   ) {
     return this.prisma.user.update({
