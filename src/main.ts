@@ -18,7 +18,7 @@ async function bootstrap() {
     );
 
     app.enableCors({
-      origin: "https://3elegant-backend.up.railway.app",
+      origin: 'https://3legant.up.railway.app',
       credentials: true,
     });
 
