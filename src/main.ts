@@ -18,7 +18,7 @@ async function bootstrap() {
     );
 
     app.enableCors({
-      origin: "https://web-corse-work-jjhb.vercel.app",
+      origin: "https://3elegant-backend.up.railway.app",
       credentials: true,
     });
 
